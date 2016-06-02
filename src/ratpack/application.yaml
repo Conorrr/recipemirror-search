@@ -1,0 +1,7 @@
+search:
+  directoryLocation: ../index
+  resultsPerPage: 10
+  maxResults: 100
+
+recipe:
+  recipeDirectory: ../data/recipes
