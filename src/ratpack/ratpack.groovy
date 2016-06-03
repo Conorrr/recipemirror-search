@@ -26,5 +26,10 @@ ratpack {
         render(json(recipeService.getRecipeSummaries(recipeIds as String[])))
       }
     }
+    prefix("recipe") {
+      get(":id") {
+        render(json(recipeService.getRecipes(pathTokens.id)[0]))
+      }
+    }
   }
 }

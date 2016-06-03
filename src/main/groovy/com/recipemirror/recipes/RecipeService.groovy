@@ -18,14 +18,15 @@ class RecipeService {
     log.info("loading recipes from <{}>", config.recipeDirectory)
     new File((String) config.recipeDirectory).eachFile() { file ->
       if (file.name.contains(".json")) {
-        recipes[file.name - '.json'] = load(file)
+        def recipeId = file.name - '.json'
+        recipes[recipeId] = [id: recipeId] + load(file)
       }
     }
     log.info("loaded {} recipes", recipes.size())
   }
 
   public getRecipes(String... ids) {
-    ids.collect({ [id: it] + recipes[it] })
+    ids.collect({ recipes.get(it) })
   }
 
   public getRecipeSummaries(String... ids) {

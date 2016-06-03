@@ -1,5 +1,5 @@
 search:
-  directoryLocation: ../index
+  directoryLocation: index
   resultsPerPage: 10
   maxResults: 100
 

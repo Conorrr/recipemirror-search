@@ -20,7 +20,7 @@ new File(args[0]).eachFile() { file ->
 }
 
 def concatenateIngredients(ingredientList) {
-  def sb = new StringBuilder();
+  def sb = new StringBuilder()
   ingredientList.each({ groupName, ingredients ->
     ingredients.each {
       sb.append(it)
@@ -31,7 +31,7 @@ def concatenateIngredients(ingredientList) {
 }
 
 def concatenateSteps(steps) {
-  def sb = new StringBuilder();
+  def sb = new StringBuilder()
   steps.each({ step ->
     sb.append(step)
     sb.append(" ")

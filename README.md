@@ -27,6 +27,9 @@ Properties are stored in `src/ratpack/application.yaml`
  GET `/search/{query}/{page}?`
  	Does a simple search and returns 
 
+ GET `/recipe/{recipeId}`
+ 	Returns a full recipe
+
 
 #### TODO:
 * Add printlns to createIndex
