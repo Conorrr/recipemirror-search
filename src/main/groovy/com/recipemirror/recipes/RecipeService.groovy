@@ -13,6 +13,7 @@ class RecipeService {
   private Logger log = LoggerFactory.getLogger(RecipeService)
 
   private def recipes = [:]
+  private def authors = [:]
 
   public void loadRecipes() {
     log.info("loading recipes from <{}>", config.recipeDirectory)
@@ -25,11 +26,22 @@ class RecipeService {
     log.info("loaded {} recipes", recipes.size())
   }
 
-  public getRecipes(String... ids) {
+  public void loadAuthors() {
+    log.info("loading authors from <{}>", config.recipeDirectory)
+    new File((String) config.authorDirectory).eachFile() { file ->
+      if (file.name.contains(".json")) {
+        def authorId = file.name - '.json'
+        authors[authorId] = [id: authorId] + load(file)
+      }
+    }
+    log.info("loaded {} authors", authors.size())
+  }
+
+  public getRecipes(List<String> ids) {
     ids.collect({ recipes.get(it) })
   }
 
-  public getRecipeSummaries(String... ids) {
+  public getRecipeSummaries(List<String> ids) {
     def fullRecipes = getRecipes(ids)
 
     fullRecipes.collect({
@@ -43,6 +55,10 @@ class RecipeService {
        serves         : it.serves,
       ]
     })
+  }
+
+  public getAuthors(String ids) {
+    ids.collect({ authors.get(it) })
   }
 
   private static load(File file) {

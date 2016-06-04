@@ -1,6 +1,7 @@
 package com.recipemirror.search
 
 import com.google.inject.Inject
+import com.recipemirror.recipes.RecipeService
 import org.apache.lucene.index.DirectoryReader
 import org.apache.lucene.index.IndexReader
 import org.apache.lucene.index.Term
@@ -12,10 +13,15 @@ import org.apache.lucene.store.RAMDirectory
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import static java.lang.Math.min
+
 class SearchService {
 
   @Inject
   private SearchConfig config
+
+  @Inject
+  private RecipeService recipeService
 
   private Logger log = LoggerFactory.getLogger(SearchService)
 
@@ -32,11 +38,17 @@ class SearchService {
     searcher = new IndexSearcher(reader)
   }
 
-  public List<String> search(List<String> terms, Integer page, String field = "all") {
+  public search(List<String> terms, Integer page, String field = "all") {
     log.info("searching for <{}> in <{}> page {}", terms, field, page)
     TopDocs results = searcher.search(buildQuery(terms, field), config.maxResults)
     ScoreDoc[] hits = results.scoreDocs
-    return paginate(hits.collect { searcher.doc(it.doc).id }, page)
+    def paginatedResults = paginate(hits.collect { searcher.doc(it.doc).id }, page)
+    def recipes = recipeService.getRecipeSummaries(paginatedResults)
+    return [
+        page        : page,
+        totalResults: results.totalHits,
+        results     : recipes,
+    ]
   }
 
   private static Query buildQuery(List<String> terms, String field) {
@@ -46,8 +58,11 @@ class SearchService {
   }
 
   private List<String> paginate(List<String> results, int page) {
+    if (results.isEmpty()) {
+      return []
+    }
     def from = (page - 1) * config.resultsPerPage
-    def to = Math.min(page * config.resultsPerPage - 1, results.size() - 1)
+    def to = min(page * config.resultsPerPage - 1, results.size() - 1)
 
     return results[from..to]
   }

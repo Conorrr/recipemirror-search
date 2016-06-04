@@ -5,6 +5,8 @@ import com.recipemirror.search.SearchConfig
 import com.recipemirror.search.SearchModule
 import com.recipemirror.search.SearchService
 
+import java.nio.file.Paths
+
 import static ratpack.groovy.Groovy.ratpack
 import static ratpack.jackson.Jackson.json
 
@@ -18,17 +20,31 @@ ratpack {
     module SearchModule
     module RecipeModule
   }
-  handlers { SearchService searchService, RecipeService recipeService ->
-    prefix("search") {
-      get(":query/:page?") {
-        def terms = pathTokens.query.tokenize(" ")
-        def recipeIds = searchService.search(terms, pathTokens.page?.toInteger() ?: 1)
-        render(json(recipeService.getRecipeSummaries(recipeIds as String[])))
-      }
+  handlers { RecipeService recipeService ->
+    get("search") { SearchService searchService ->
+      def page = request.queryParams.page?.toInteger() ?: 1
+      def terms = request.queryParams.query?.tokenize(" ") ?: [""]
+      def searchResult = searchService.search(terms, page)
+      response.contentType("application/json;charset=utf-8")
+      render(json(searchResult))
     }
     prefix("recipe") {
       get(":id") {
-        render(json(recipeService.getRecipes(pathTokens.id)[0]))
+        response.contentType("application/json;charset=utf-8")
+        render(json(recipeService.getRecipes([pathTokens.id])[0]))
+      }
+      get(':id/image') { RecipeConfig recipeConfig ->
+        render(Paths.get("${recipeConfig.recipeImageDirectory}/${pathTokens.id}.jpg"))
+      }
+    }
+
+    prefix("author") {
+      get(":id") {
+        response.contentType("application/json;charset=utf-8")
+        render(json(recipeService.getAuthors([pathTokens.id])[0]))
+      }
+      get(':id/image') { RecipeConfig recipeConfig ->
+        render(Paths.get("${recipeConfig.authorImageDirectory}/${pathTokens.id}.jpg"))
       }
     }
   }

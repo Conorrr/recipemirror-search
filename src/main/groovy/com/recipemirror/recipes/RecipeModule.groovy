@@ -27,7 +27,9 @@ class RecipeModule extends ConfigurableModule<RecipeConfig> {
 
     @Override
     public void onStart(StartEvent event) {
-      injector.getInstance(RecipeService).loadRecipes()
+      def recipeService = injector.getInstance(RecipeService)
+      recipeService.loadRecipes()
+      recipeService.loadAuthors()
     }
   }
 }
